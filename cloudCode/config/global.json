@@ -1,0 +1,14 @@
+{
+    "applications": {
+        "_default": {
+            "link": "tictactoe"
+        }, 
+        "tictactoe": {
+            "applicationId": "b9JzrHEkEQ4Gf1Q95vPzJR4nwPkejKyZ7fZEqTqA", 
+            "masterKey": "DLj1JjSKFe88DfTDFlPb0lJBwXmkIRTmanJL8Qgq"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.2.16"
+    }
+}
