@@ -1,33 +1,28 @@
+var conn;
 function init() {
-	//console.log("hello world!");
-	//test_parse();
-	test_pubnub();
+	conn = new Connector();
+	facebook_login(function (id) {conn.connect(id, onMessage, onConnected, function(e){console.log(e)});});
 }
 
-function test_parse() {
-	Parse.initialize("b9JzrHEkEQ4Gf1Q95vPzJR4nwPkejKyZ7fZEqTqA", "mDou2tcnM5zWlYJa3xBdwi3CxYLbKjb7pMyAg8Zc");
-	Parse.Cloud.run('hello', {}, {
-	  success: function(result) {
-		console.log(result);
-	  },
-	  error: function(error) {
-		console.log("parse error: "+error);
-	  }
-	});
-}
-
-function test_pubnub() {
-	PUBNUB.subscribe({
-        channel : "parse_channel",
-        message : onMessage
-    });
-    // SEND TEXT MESSAGE
-    PUBNUB.publish({
-		channel : "parse_channel",
-		message : "testing testing, can you hear me?",
-	});
+function onConnected() {
+	console.log("connected!");
+	UI.renderButton("ping", function(){conn.call("ping", {}, function(){}, function(){})}, "main");
 }
 
 function onMessage(m) {
 	console.log(m);
+}
+
+// my fb id 100000878348460 
+function facebook_login(callback) {
+	FB.init({
+		appId      : '275850555903618',
+		status     : true,
+		xfbml      : true
+	});
+	FB.login(function(data){onFBLogin(data, callback);}, {scope: ''});
+}
+
+function onFBLogin(data, callback) {
+	callback(data.authResponse.userID);
 }

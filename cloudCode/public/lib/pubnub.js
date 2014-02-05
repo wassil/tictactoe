@@ -338,8 +338,8 @@ function PN_API(setup) {
     ,   SUB_TIMEOUT   = (+setup['timeout']     || DEF_SUB_TIMEOUT) * SECOND
     ,   KEEPALIVE     = (+setup['keepalive']   || DEF_KEEPALIVE)   * SECOND
     ,   NOLEAVE       = setup['noleave']       || 0
-    ,   PUBLISH_KEY   = setup['publish_key']   || 'pub-c-48cd8141-7cf1-4c6b-956f-2a801f9b2857' // TODO jdudak
-    ,   SUBSCRIBE_KEY = setup['subscribe_key'] || 'sub-c-bdbb77ee-8e2f-11e3-abcc-02ee2ddab7fe' // TODO jdudak
+    ,   PUBLISH_KEY   = setup['publish_key']   || ''
+    ,   SUBSCRIBE_KEY = setup['subscribe_key'] || ''
     ,   AUTH_KEY      = setup['auth_key']      || ''
     ,   SECRET_KEY    = setup['secret_key']    || ''
     ,   PNSDK         = setup['PNSDK']         || ''
