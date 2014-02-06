@@ -9,7 +9,7 @@ function Connector() {
 /**
  * Connects to parse, which returns channel id that is used to connect to pubnub
  **/
-Connector.prototype.connect = function (id, messageHandler, successCallback, errorCallback) {
+Connector.prototype.connect = function (id, successCallback, errorCallback) {
 	console.log("connecting using id "+id);
 	this._id = id;
 	this._connectParse(
@@ -23,7 +23,6 @@ Connector.prototype.connect = function (id, messageHandler, successCallback, err
 		}.bind(this),
 		errorCallback
 	);
-	this._messageHandler = messageHandler;
 }
 
 Connector.prototype._connectParse = function(id, successCallback, errorCallback) {
@@ -60,6 +59,16 @@ Connector.prototype.call = function(method, params, success, error) {
 	);
 }
 
+Connector.prototype.setMessageCallback = function(callback) {
+	this._messageHandler = callback;
+}
+
 Connector.prototype._onMessage = function(m){
-	this._messageHandler(m);
+	if (this._messageHandler) {
+		this._messageHandler(m);
+	}
+}
+
+Connector.prototype.getID = function() {
+	return this._id;
 }

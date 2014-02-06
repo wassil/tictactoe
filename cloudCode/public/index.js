@@ -1,28 +1,77 @@
 var conn;
+
+var screen;
+
+var gameID;
+
 function init() {
+	screen = UI.Screen({});
+	React.renderComponent(screen,document.getElementById('main'));
 	conn = new Connector();
-	facebook_login(function (id) {conn.connect(id, onMessage, onConnected, function(e){console.log(e)});});
+	Util.facebookLogin(function (data) {conn.connect(data.authResponse.userID, onConnected, function(e){console.log(e)});});
+	//conn.connect("100000878348460", onConnected, function(e){console.log(e)});
+	/*onInitMessage("{'id':'nuC2woZoX8','players':['100000878348460',''],'turn':0,'boardWidth':10,'boardHeight':10,'squares':[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]}");
+	*/
 }
 
 function onConnected() {
 	console.log("connected!");
-	UI.renderButton("ping", function(){conn.call("ping", {}, function(){}, function(){})}, "main");
+	
+	if (Util.getSearchParameters().invite){
+		console.log("invite is there");
+		conn.call(
+			"join", 
+			{invite:Util.getSearchParameters().invite}, 
+			function(data){}, 
+			function(){}
+		);
+		conn.setMessageCallback(onInitMessage);
+	} else {
+		screen.gotoState("create", {callback:onStart});
+	}
 }
 
-function onMessage(m) {
-	console.log(m);
+function onStart() {
+	conn.call(
+		"start", 
+		{}, 
+		function(data){
+			var link = "tictactoe.parseapp.com/?invite=" + data.id;
+			screen.gotoState("wait", {link:link});
+		}, 
+		function(){}
+	);
+	conn.setMessageCallback(onInitMessage);
 }
 
-// my fb id 100000878348460 
-function facebook_login(callback) {
-	FB.init({
-		appId      : '275850555903618',
-		status     : true,
-		xfbml      : true
-	});
-	FB.login(function(data){onFBLogin(data, callback);}, {scope: ''});
+function onInitMessage(m) {
+	var data = Util.decodePubNub(m);
+	gameID = data.id;
+	data.myID = conn.getID();
+	conn.setMessageCallback(onMoveMessage);
+	data.callback = onPlayerMove;
+	screen.gotoState("game", {data:data});
 }
 
-function onFBLogin(data, callback) {
-	callback(data.authResponse.userID);
+function onMoveMessage(m) {
+	var data = Util.decodePubNub(m);
+	data.myID = conn.getID();
+	data.callback = onPlayerMove;
+	screen.setOptions({data:data});
 }
+
+function onPlayerMove(i,j) {
+	console.log("clicked "+i+" "+j);
+	conn.call(
+		"turn", 
+		{
+			game:gameID,
+			i:i,
+			j:j
+		}, 
+		function(data){}, 
+		function(){}
+	);
+}
+
+
