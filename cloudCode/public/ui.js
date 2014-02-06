@@ -27,6 +27,7 @@ UI.Screen = React.createClass({
 	},
 
 	render: function() {
+		var top;
 		var contents;
 		switch(this.state.state){
 			case "preload":
@@ -40,6 +41,7 @@ UI.Screen = React.createClass({
 					</div>;		
 				break;
 			case "wait":
+				top = <button onClick={this.state.options.callback}>{"<< "}BACK</button>;
 				contents = 
 					<div>
 						<h1>Game created!</h1>
@@ -49,6 +51,7 @@ UI.Screen = React.createClass({
 					</div>;		
 				break;
 			case "game":
+				top = <button onClick={this.state.options.callback}>{"<< "}BACK</button>;
 				var data = this.state.options.data;
 				var myID = data.myID;
 				var myPlayerID = data.players.indexOf(data.myID);
@@ -70,6 +73,7 @@ UI.Screen = React.createClass({
 		}
 		return (
 		<div>
+			{top}
 			{contents}
 		</div>
 		);
@@ -113,7 +117,7 @@ var PlayerPanel = React.createClass({
 		return (
 		  <div className={css}>
 			<img src={"http://graph.facebook.com/"+this.props.user_id+"/picture?height=50"}/>
-			<div className="name"><h1>{name}{" "}{result}</h1></div>
+			<div><h3>{name}{" "}{result}</h3></div>
 		  </div>
 		);
 	}

@@ -28,9 +28,8 @@
 	background: #AAAAFF;
 }
 
-.playerPanel.name{
-	float:right;
-	text-align:right;
+.playerPanel h1{
+	margin:0px
 }
 
 .playerPanel img{

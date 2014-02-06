@@ -1,7 +1,5 @@
 var conn;
-
 var screen;
-
 var gameID;
 
 function init() {
@@ -13,19 +11,24 @@ function init() {
 
 function onConnected() {
 	console.log("connected!");
-	
 	if (Util.getSearchParameters().invite){
-		console.log("invite is there");
 		conn.call(
 			"join", 
 			{invite:Util.getSearchParameters().invite}, 
 			function(data){}, 
-			function(){}
+			function(error){
+				console.log("cannot join: "+error.message);
+				gotoCreate();
+			}
 		);
 		conn.setMessageCallback(onInitMessage);
 	} else {
-		screen.gotoState("create", {callback:onStart});
+		gotoCreate();
 	}
+}
+
+function gotoCreate(){
+	screen.gotoState("create", {callback:onStart});
 }
 
 function onStart() {
@@ -34,7 +37,7 @@ function onStart() {
 		{}, 
 		function(data){
 			var link = "tictactoe.parseapp.com/?invite=" + data.id;
-			screen.gotoState("wait", {link:link});
+			screen.gotoState("wait", {link:link, callback:gotoCreate});
 		}, 
 		function(){}
 	);
@@ -47,7 +50,7 @@ function onInitMessage(m) {
 	data.myID = conn.getID();
 	conn.setMessageCallback(onMoveMessage);
 	data.callback = onPlayerMove;
-	screen.gotoState("game", {data:data, blocked:false});
+	screen.gotoState("game", {data:data, blocked:false, callback:gotoCreate});
 }
 
 function onMoveMessage(m) {

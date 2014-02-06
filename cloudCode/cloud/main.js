@@ -15,8 +15,6 @@ Parse.Cloud.define("start", function(request, response) {
 	game.save(null, {
 		success: function(game) {
 			response.success({id:game.id});
-			//TESTING - send data right away
-			sendGameDataToPlayers(game);
 		},
 		error: function(game, error){
 			console.log("error saving game: "+error.description);
@@ -71,8 +69,7 @@ Parse.Cloud.define("turn", function(request, response) {
 				return;
 			}
 			board.setSquare(request.params.i,request.params.j,game.getPlayers().indexOf(request.params.id));
-			//TESTING its always my turn
-			//game.nextTurn();
+			game.nextTurn();
 			var winner = board.checkForWinner();
 			if (winner!=-1){
 				game.setWinner(winner);
