@@ -10,12 +10,15 @@ UI.Screen = React.createClass({
 	},
 
 	setOptions: function(options){
-		this.setState({
-			state: this.state.state,
-			options: options
-		});
+		var state = this.state;
+		for (var prop in options) {
+			if(options.hasOwnProperty(prop)){
+				state.options[prop] = options[prop];
+			}
+		}
+		this.setState(state);
 	},
-	
+		
 	gotoState: function(state, options){
 		this.setState({
 			state: state,
@@ -47,13 +50,21 @@ UI.Screen = React.createClass({
 				break;
 			case "game":
 				var data = this.state.options.data;
-				var opponentID = data.players[(data.players.indexOf(data.myID)+1)%2];
+				var myID = data.myID;
+				var myPlayerID = data.players.indexOf(data.myID);
+				var opponentPlayerID = (myPlayerID + 1) % 2;
+				var opponentID = data.players[opponentPlayerID];
+				
+				var blocked = false;
+				if (this.state.options.blocked || data.winner!=-1) {
+					blocked = true;
+				}				
 				contents = 
 					<div className="game">
-						<PlayerPanel id={data.players.indexOf(opponentID)} user_id={opponentID} turn={data.turn==data.players.indexOf(opponentID)} />
-						<Board width={data.boardWidth} height={data.boardHeight} squares={data.squares} clickable={data.turn==data.players.indexOf(data.myID)} callback={data.callback}/>
-						<PlayerPanel id={data.players.indexOf(data.myID)} user_id={data.myID} turn={data.turn==data.players.indexOf(data.myID)} />
-					</div>
+						<PlayerPanel playerID={opponentPlayerID} user_id={opponentID} turn={data.turn==opponentPlayerID && !blocked} winner={data.winner}/>
+						<Board width={data.boardWidth} height={data.boardHeight} squares={data.squares} clickable={data.turn==myPlayerID && !blocked} callback={data.callback}/>
+						<PlayerPanel playerID={myPlayerID} user_id={myID} turn={data.turn==myPlayerID && !blocked} winner={data.winner}/>
+					</div>;
 				break;
 			
 		}
@@ -82,7 +93,7 @@ var PlayerPanel = React.createClass({
 		if (this.props.turn) {
 			css += "turn ";
 		}
-		if (this.props.id==0) {
+		if (this.props.playerID==0) {
 			css += "red ";
 		} else {
 			css += "blue ";
@@ -91,10 +102,18 @@ var PlayerPanel = React.createClass({
 		if (this.state && this.state.name) {
 			name = this.state.name;
 		}
+		var result="";
+		if (this.props.winner!="-1"){
+			if  (this.props.winner==this.props.playerID){
+				result=" WON!";
+			} else {
+				result=" LOST!";
+			}
+		}
 		return (
 		  <div className={css}>
 			<img src={"http://graph.facebook.com/"+this.props.user_id+"/picture?height=50"}/>
-			<div className="name"><h1>{name}</h1></div>
+			<div className="name"><h1>{name}{" "}{result}</h1></div>
 		  </div>
 		);
 	}
@@ -106,6 +125,9 @@ var Board = React.createClass({
 		var width = this.props.width;
 		var height = this.props.height;
 		var callback = this.props.callback;
+		if (!this.props.clickable) {
+			callback = function(){};
+		}
 		var tableContents = [];
 		for (var i=0;i<height;i++){
 			row = [];

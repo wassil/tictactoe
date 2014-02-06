@@ -9,9 +9,6 @@ function init() {
 	React.renderComponent(screen,document.getElementById('main'));
 	conn = new Connector();
 	Util.facebookLogin(function (data) {conn.connect(data.authResponse.userID, onConnected, function(e){console.log(e)});});
-	//conn.connect("100000878348460", onConnected, function(e){console.log(e)});
-	/*onInitMessage("{'id':'nuC2woZoX8','players':['100000878348460',''],'turn':0,'boardWidth':10,'boardHeight':10,'squares':[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]}");
-	*/
 }
 
 function onConnected() {
@@ -50,18 +47,18 @@ function onInitMessage(m) {
 	data.myID = conn.getID();
 	conn.setMessageCallback(onMoveMessage);
 	data.callback = onPlayerMove;
-	screen.gotoState("game", {data:data});
+	screen.gotoState("game", {data:data, blocked:false});
 }
 
 function onMoveMessage(m) {
 	var data = Util.decodePubNub(m);
 	data.myID = conn.getID();
 	data.callback = onPlayerMove;
-	screen.setOptions({data:data});
+	screen.setOptions({data:data, blocked:false});
 }
 
 function onPlayerMove(i,j) {
-	console.log("clicked "+i+" "+j);
+	screen.setOptions({blocked:true});
 	conn.call(
 		"turn", 
 		{

@@ -15,8 +15,8 @@ Parse.Cloud.define("start", function(request, response) {
 	game.save(null, {
 		success: function(game) {
 			response.success({id:game.id});
-			//TESTING
-		//	sendGameDataToPlayers(game);
+			//TESTING - send data right away
+			sendGameDataToPlayers(game);
 		},
 		error: function(game, error){
 			console.log("error saving game: "+error.description);
@@ -71,11 +71,19 @@ Parse.Cloud.define("turn", function(request, response) {
 				return;
 			}
 			board.setSquare(request.params.i,request.params.j,game.getPlayers().indexOf(request.params.id));
-			game.nextTurn();
+			//TESTING its always my turn
+			//game.nextTurn();
+			var winner = board.checkForWinner();
+			if (winner!=-1){
+				game.setWinner(winner);
+			}
 			game.save(null, {
 				success: function (game) {
 					sendGameDataToPlayers(game);
 					response.success("ok, game data will come shortly");
+				},
+				error:  function(game, error) {
+					response.error("error saving game " + error.description);
 				}
 			});			
 		},
@@ -94,6 +102,7 @@ function sendGameDataToPlayers(game) {
 	data.boardWidth = board.getWidth();
 	data.boardHeight = board.getHeight();
 	data.squares = board.getSquares();
+	data.winner = game.getWinner();
 	
 	var msg = JSON.stringify(data);
 	msg = msg.replace(new RegExp('"', 'g'), "'");
