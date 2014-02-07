@@ -9,9 +9,11 @@ function Connector() {
 /**
  * Connects to parse, which returns channel id that is used to connect to pubnub
  **/
-Connector.prototype.connect = function (id, successCallback, errorCallback) {
+Connector.prototype.connect = function (id, token, successCallback, errorCallback) {
 	console.log("connecting using id "+id);
+	console.log("connecting using token "+token);
 	this._id = id;
+	this._token = token;
 	this._connectParse(
 		id, 
 		function(result){
@@ -49,6 +51,7 @@ Connector.prototype._connectPubNub = function(channel, successCallback, errorCal
 Connector.prototype.call = function(method, params, success, error) {
 	console.log("calling parse method: "+method);
 	params.id = this._id;
+	params.token = this._token;
 	Parse.Cloud.run(
 		method, 
 		params, 

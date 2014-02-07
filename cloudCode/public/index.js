@@ -3,10 +3,14 @@ var screen;
 var gameID;
 
 function init() {
+	if (!Util.getSearchParameters().id || !Util.getSearchParameters().token) {
+		console.log("hack the planet!");
+		return;
+	}
 	screen = UI.Screen({});
-	React.renderComponent(screen,document.getElementById('main'));
+	React.renderComponent(screen, document.getElementById('main'));
 	conn = new Connector();
-	Util.facebookLogin(function (data) {conn.connect(data.authResponse.userID, onConnected, function(e){console.log(e)});});
+	conn.connect(Util.getSearchParameters().id, Util.getSearchParameters().token, onConnected, function(e){console.log(e)});
 }
 
 function onConnected() {
@@ -36,7 +40,7 @@ function onStart() {
 		"start", 
 		{}, 
 		function(data){
-			var link = "tictactoe.parseapp.com/?invite=" + data.id;
+			var link = "https://apps.facebook.com/tic_tac_toe_parse/?invite=" + data.id;
 			screen.gotoState("wait", {link:link, callback:gotoCreate});
 		}, 
 		function(){}

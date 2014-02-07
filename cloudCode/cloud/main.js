@@ -1,16 +1,21 @@
-
+require('cloud/express.js');
+var Util = require("cloud/utils.js").Util;
+	
 //TODO anybody can cheat server by sending userID, I should check if they really are connected to facebook
 Parse.Cloud.define("connect", function(request, response) {
-	var channelID = getChannel(request.params.id);
+	if (!Util.checkToken(request.params.token, request.params.id)){
+		response.error("token doesn't match");
+		return;
+	}
+	var channelID = Util.getChannel(request.params.id);
 	response.success({channelID:channelID});
 });
 
-Parse.Cloud.define("ping", function(request, response) {
-	sendToPubnub(getChannel(request.params.id), "pong");
-	response.success("ok");
-});
-
 Parse.Cloud.define("start", function(request, response) {
+	if (!Util.checkToken(request.params.token, request.params.id)){
+		response.error("token doesn't match");
+		return;
+	}
 	var game = require("cloud/game.js").Game.create(request.params.id);
 	game.save(null, {
 		success: function(game) {
@@ -24,6 +29,10 @@ Parse.Cloud.define("start", function(request, response) {
 });
 
 Parse.Cloud.define("join", function(request, response) {
+	if (!Util.checkToken(request.params.token, request.params.id)){
+		response.error("token doesn't match");
+		return;
+	}
 	if (!request.params.invite){
 		response.error("you have to provide invite id");	
 		return;
@@ -51,6 +60,10 @@ Parse.Cloud.define("join", function(request, response) {
 });
 
 Parse.Cloud.define("turn", function(request, response) {
+	if (!Util.checkToken(request.params.token, request.params.id)){
+		response.error("token doesn't match");
+		return;
+	}
 	if (!request.params.game){
 		response.error("you have to provide game id");	
 		return;
@@ -105,14 +118,8 @@ function sendGameDataToPlayers(game) {
 	msg = msg.replace(new RegExp('"', 'g'), "'");
 	msg = escape(msg);
 	
-	sendToPubnub(getChannel(game.getPlayers()[0]),msg);
-	sendToPubnub(getChannel(game.getPlayers()[1]),msg);
-}
-
-function getChannel(id) {
-	var secret = "wow much secret so amazing such secure";	
-	//return require("cloud/sha1.js").hash(id + secret);
-	return id;
+	sendToPubnub(Util.getChannel(game.getPlayers()[0]),msg);
+	sendToPubnub(Util.getChannel(game.getPlayers()[1]),msg);
 }
 
 function sendToPubnub(channel, message) {
