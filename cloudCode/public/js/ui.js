@@ -45,9 +45,8 @@ UI.Screen = React.createClass({
 				contents = 
 					<div>
 						<h1>Game created!</h1>
-						<i>Send this link to a friend and wait for him to join</i>
+						<i>Please wait for your friend</i>
 						<br/>
-						<b>{this.state.options.link}</b>
 					</div>;		
 				break;
 			case "game":

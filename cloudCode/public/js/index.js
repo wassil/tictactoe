@@ -7,6 +7,20 @@ function init() {
 		console.log("hack the planet!");
 		return;
 	}
+	console.log(Util.parseFBObject(Util.getSearchParameters().fb_object));
+	FB.init({
+		appId      : Config.APP_ID,
+		status     : true,
+		xfbml      : true,
+		authResponse: Util.parseFBObject(Util.getSearchParameters().fb_object)
+    });
+	
+	FB.init({
+		appId      : Config.APP_ID,
+		status     : true,
+		xfbml      : true
+    });
+	
 	screen = UI.Screen({});
 	React.renderComponent(screen, document.getElementById('main'));
 	conn = new Connector();
@@ -15,10 +29,10 @@ function init() {
 
 function onConnected() {
 	console.log("connected!");
-	if (Util.getSearchParameters().invite){
+	if (Util.getSearchParameters().invite_id){
 		conn.call(
 			"join", 
-			{invite:Util.getSearchParameters().invite}, 
+			{invite_id:Util.getSearchParameters().invite_id}, 
 			function(data){}, 
 			function(error){
 				console.log("cannot join: "+error.message);
@@ -36,16 +50,35 @@ function gotoCreate(){
 }
 
 function onStart() {
-	conn.call(
-		"start", 
-		{}, 
-		function(data){
-			var link = Util.getCanvasGameURL()+"?invite=" + data.id;
-			screen.gotoState("wait", {link:link, callback:gotoCreate});
-		}, 
-		function(){}
+	FB.ui(
+		{
+			method: 'sync_app_invite',
+			timeout: 120,
+			display: 'dialog'
+		},
+		onInviteSent
 	);
 	conn.setMessageCallback(onInitMessage);
+}
+
+function onInviteSent(data) {
+	if (!data.invite_id) {
+		return;
+	}
+	conn.call(
+		"start", 
+		{
+			invite_id:String(data.invite_id)
+		}, 
+		function(data){
+			var link = Util.getCanvasGameURL()+"?invite=" + data.id;
+			//TODO timeout isn't used
+			screen.gotoState("wait", {timeout:120, callback:gotoCreate});
+		}, 
+		function(error){
+			console.log("cannot start: "+error.message);
+		}
+	);
 }
 
 function onInitMessage(m) {

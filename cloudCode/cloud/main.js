@@ -16,7 +16,11 @@ Parse.Cloud.define("start", function(request, response) {
 		response.error("token doesn't match");
 		return;
 	}
-	var game = require("cloud/game.js").Game.create(request.params.id);
+	if (!request.params.invite_id){
+		response.error("you have to provide invite_id");
+		return;
+	}
+	var game = require("cloud/game.js").Game.create(request.params.invite_id, request.params.id);
 	game.save(null, {
 		success: function(game) {
 			response.success({id:game.id});
@@ -33,16 +37,19 @@ Parse.Cloud.define("join", function(request, response) {
 		response.error("token doesn't match");
 		return;
 	}
-	if (!request.params.invite){
+	if (!request.params.invite_id){
 		response.error("you have to provide invite id");	
 		return;
 	}
 	var query = new Parse.Query(require("cloud/game.js").Game);
 	query.include("board");
-	query.get(request.params.invite, {
+	console.log("looking for: "+request.params.invite_id);
+	query.equalTo("invite_id", request.params.invite_id);
+	query.first({
 		success: function(game) {
 			if (!game.canJoin()){
-				response.error("cannot join game with invite id " + request.params.invite);
+				response.error("cannot join game with invite id " + request.params.invite_id);
+				return;
 			}
 			game.join(request.params.id);
 			game.save(null, {
