@@ -16,15 +16,22 @@ app.all('/', function(req, res) {
 			res.send("unauthorized");
 			return;
 		}
-		console.log("invite: " + req.query.invite);
 		var srJSON = parseSignedRequest(req.body['signed_request']);
 		console.log(srJSON);
 		if (srJSON.user_id) {
 			//we have user at this point, we can create a token for him - that is what he is supposed to use for communication
 			//TODO use one time tokens
-			res.redirect(indexPage + '?id='+srJSON.user_id+"&token="+Util.getTokenForUser(srJSON.user_id )+"&invite="+req.query.invite);
+			var redirect = indexPage + '?id='+srJSON.user_id+"&token="+Util.getTokenForUser(srJSON.user_id);
+			if (req.query.invite) {
+				redirect += "&invite="+req.query.invite;
+			}
+			res.redirect(redirect);
 		} else {
-			var login_url = 'https://www.facebook.com/dialog/oauth?client_id='+Config.APP_ID+'&redirect_uri='+escape(Config.APP_URI+"?invite="+req.query.invite)+'';
+			var redirect_url = Config.APP_URI;
+			if (req.query.invite) {
+				redirect_url += "?invite=" + req.query.invite;
+			}
+			var login_url = 'https://www.facebook.com/dialog/oauth?client_id='+Config.APP_ID+'&redirect_uri='+escape(redirect_url)+'';
 			res.send("<script>top.location.href='"+login_url+"'</script>");
 		}
 	}

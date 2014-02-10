@@ -17,5 +17,20 @@ Util.getChannel = function (id) {
 }
 
 
+Util.sendToPubnub = function (channel, message) {
+	var publish_key = Config.PUBNUB_PUBLISH_KEY;
+	var subscribe_key = Config.PUBNUB_SUBSCRIBE_KEY;
+	var url = "http://ps5.pubnub.com/publish/"+publish_key+"/"+subscribe_key+"/0/"+channel+"/0/%22"+message+"%22";
+	Parse.Cloud.httpRequest({
+		url: url,
+		success: function(httpResponse) {
+		},
+		error: function(httpResponse) {
+			console.log('Request failed with response code ' + httpResponse.status);
+		}
+	});
+};
+
+
 exports.Util = Util;
 

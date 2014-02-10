@@ -1,8 +1,8 @@
 function Connector() {
-	Parse.initialize("b9JzrHEkEQ4Gf1Q95vPzJR4nwPkejKyZ7fZEqTqA", "mDou2tcnM5zWlYJa3xBdwi3CxYLbKjb7pMyAg8Zc");
+	Parse.initialize(Config.PARSE_APPLICATION_ID, Config.JAVASCRIPT_KEY);
 	this._pubnub = PUBNUB.init({
-		publish_key: 'pub-c-48cd8141-7cf1-4c6b-956f-2a801f9b2857',
-		subscribe_key: 'sub-c-bdbb77ee-8e2f-11e3-abcc-02ee2ddab7fe'
+		publish_key: Config.PUBNUB_PUBLISH_KEY,
+		subscribe_key: Config.PUBNUB_SUBSCRIBE_KEY
 	});
 };
 

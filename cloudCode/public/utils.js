@@ -14,6 +14,12 @@ Util.getSearchParameters = function() {
     return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
 }
 
+//there probably isn't a reasonable way to do this becasue of security
+Util.getCanvasGameURL = function() {
+	return Config.APP_URI;
+}
+
+
 // my fb id 100000878348460 
 Util.facebookLogin = function(callback) {
 	FB.init({

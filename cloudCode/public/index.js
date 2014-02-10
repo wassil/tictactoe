@@ -40,7 +40,7 @@ function onStart() {
 		"start", 
 		{}, 
 		function(data){
-			var link = "https://apps.facebook.com/tic_tac_toe_parse/?invite=" + data.id;
+			var link = Util.getCanvasGameURL()+"?invite=" + data.id;
 			screen.gotoState("wait", {link:link, callback:gotoCreate});
 		}, 
 		function(){}
