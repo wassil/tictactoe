@@ -30,6 +30,7 @@ function init() {
 function onConnected() {
 	console.log("connected!");
 	if (Util.getSearchParameters().invite_id){
+		conn.setMessageCallback(onInitMessage);
 		conn.call(
 			"join", 
 			{invite_id:Util.getSearchParameters().invite_id}, 
@@ -39,7 +40,6 @@ function onConnected() {
 				gotoCreate();
 			}
 		);
-		conn.setMessageCallback(onInitMessage);
 	} else {
 		gotoCreate();
 	}
