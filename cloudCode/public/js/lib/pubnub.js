@@ -665,6 +665,7 @@ function PN_API(setup) {
         */
         'subscribe' : function( args, callback ) {
             var channel       = args['channel']
+			,   connectCallback = args['connectCallback']
             ,   callback      = callback            || args['callback']
             ,   callback      = callback            || args['message']
             ,   auth_key      = args['auth_key']    || AUTH_KEY
@@ -795,7 +796,11 @@ function PN_API(setup) {
                         jsonp, TIMETOKEN
                     ],
                     success : function(messages) {
-                        SUB_RECEIVER = null;
+						if (connectCallback) {
+							connectCallback();
+							connectCallback = null; //HACK HACK HACKITY HACK! - make sure this is only called once
+						}
+						SUB_RECEIVER = null;
                         // Check for Errors
                         if (!messages || (
                             typeof messages == 'object' &&

@@ -1,8 +1,10 @@
 function Connector() {
 	Parse.initialize(Config.PARSE_APPLICATION_ID, Config.JAVASCRIPT_KEY);
-	this._pubnub = PUBNUB.init({
+	PUBNUB = PUBNUB.init({
+		notest: 1,
 		publish_key: Config.PUBNUB_PUBLISH_KEY,
-		subscribe_key: Config.PUBNUB_SUBSCRIBE_KEY
+		subscribe_key: Config.PUBNUB_SUBSCRIBE_KEY,
+		ssl:true
 	});
 };
 
@@ -16,7 +18,7 @@ Connector.prototype.connect = function (id, token, successCallback, errorCallbac
 	this._token = token;
 	this._connectParse(
 		id, 
-		function(result){
+		function(result) {
 			this._connectPubNub(
 				result.channelID, 
 				successCallback,
@@ -41,11 +43,11 @@ Connector.prototype._connectParse = function(id, successCallback, errorCallback)
 }
 
 Connector.prototype._connectPubNub = function(channel, successCallback, errorCallback) {
-	this._pubnub.subscribe({
+	PUBNUB.subscribe({
 		channel : channel,
-		message : this._onMessage.bind(this)
+		message : this._onMessage.bind(this),
+		connectCallback : successCallback
 	});
-	successCallback();
 }
 
 Connector.prototype.call = function(method, params, success, error) {

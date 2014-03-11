@@ -11,7 +11,6 @@ var indexPage = '/canvas.html';
 app.use(express.bodyParser());
 
 app.all('/fb', function(req, res) {
-	console.log("my endpoint");
 	if (req.body && req.body['signed_request']) {
 		if (!verifySignedRequest(req.body['signed_request'])){
 			res.send("unauthorized");
