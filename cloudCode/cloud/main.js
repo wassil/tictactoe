@@ -1,7 +1,6 @@
 require('cloud/express.js');
 var Util = require("cloud/utils.js").Util;
 	
-//TODO anybody can cheat server by sending userID, I should check if they really are connected to facebook
 Parse.Cloud.define("connect", function(request, response) {
 	if (!Util.checkToken(request.params.token, request.params.id)){
 		response.error("token doesn't match");

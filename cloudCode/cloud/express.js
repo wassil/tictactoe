@@ -6,11 +6,12 @@ var Util = require("cloud/utils.js").Util;
 var app = express();
 
 
-var indexPage = '/canvas.html'; // This can not be index.html because that one would be catched by the '/' rule below
+var indexPage = '/canvas.html';
 
 app.use(express.bodyParser());
 
 app.all('/fb', function(req, res) {
+	console.log("my endpoint");
 	if (req.body && req.body['signed_request']) {
 		if (!verifySignedRequest(req.body['signed_request'])){
 			res.send("unauthorized");
@@ -27,7 +28,6 @@ app.all('/fb', function(req, res) {
 			}
 			res.redirect(redirect);
 		} else {
-			//TODO login forward invite
 			var login_url = 'https://www.facebook.com/dialog/oauth?client_id='+Config.APP_ID+'&redirect_uri='+escape(Config.APP_URI+"?invite_id="+req.query.invite_id)+'';
 			res.send("<script>top.location.href='"+login_url+"'</script>");
 		}
