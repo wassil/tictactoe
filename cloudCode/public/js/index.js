@@ -21,6 +21,7 @@ function init() {
 		xfbml      : true
     });
 	
+	
 	screen = UI.Screen({});
 	React.renderComponent(screen, document.getElementById('main'));
 	conn = new Connector();
@@ -29,6 +30,7 @@ function init() {
 
 function onConnected() {
 	console.log("connected!");
+	
 	if (Util.getSearchParameters().invite_id){
 		conn.setMessageCallback(onInitMessage);
 		conn.call(
@@ -45,8 +47,26 @@ function onConnected() {
 	}
 }
 
-function gotoCreate(){
-	screen.gotoState("create", {callback:onStart});
+function gotoCreate() {
+	screen.gotoState("create", {callback:onStart, friendsOnline:false});
+
+	FB.Event.subscribe(
+		'canvas.presenceUpdated',
+		function(data) {
+			console.log("canvas.presenceUpdated");
+			console.log(data);
+			screen.setProps({friendsOnline:data});
+		}
+	);
+
+	FB.Canvas.areFriendsOnline(
+		function (result) {
+			console.log("getOnlineFriendsCount");
+			console.log(result);
+			screen.setProps({friendsOnline:result});
+		}
+	);
+
 }
 
 function onStart() {
@@ -94,11 +114,11 @@ function onMoveMessage(m) {
 	var data = Util.decodePubNub(m);
 	data.myID = conn.getID();
 	data.callback = onPlayerMove;
-	screen.setOptions({data:data, blocked:false});
+	screen.setProps({data:data, blocked:false});
 }
 
 function onPlayerMove(i,j) {
-	screen.setOptions({blocked:true});
+	screen.setProps({blocked:true});
 	conn.call(
 		"turn", 
 		{

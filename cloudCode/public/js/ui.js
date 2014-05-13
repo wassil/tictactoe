@@ -4,26 +4,13 @@ UI = {};
 
 UI.Screen = React.createClass({
 	getInitialState: function() {
-		return {
-			state: "preload"
-		};
+		//react state has to be object
+		return {state:"preload"};
 	},
 
-	setOptions: function(options){
-		var state = this.state;
-		for (var prop in options) {
-			if(options.hasOwnProperty(prop)){
-				state.options[prop] = options[prop];
-			}
-		}
-		this.setState(state);
-	},
-		
-	gotoState: function(state, options){
-		this.setState({
-			state: state,
-			options: options
-		});
+	gotoState: function(state, props) {
+		this.setState({state:state});
+		this.replaceProps(props);
 	},
 
 	render: function() {
@@ -34,14 +21,21 @@ UI.Screen = React.createClass({
 				contents = <h1>Loading!</h1>;
 				break;
 			case "create":
+				var onlineFriends = null;
+				if (this.props.friendsOnline) {
+					onlineFriends = <h3>You have friends who play this online</h3>;
+				} else {
+					onlineFriends = <h3>None of your friends who play this are online</h3>;
+				}
 				contents = 
 					<div>
 						<h1>Create new game!</h1>
-						<button onClick={this.state.options.callback}>CREATE</button>
-					</div>;		
+						{onlineFriends}
+						<button onClick={this.props.callback}>CREATE</button>
+					</div>;	
 				break;
 			case "wait":
-				top = <button onClick={this.state.options.callback}>{"<< "}BACK</button>;
+				top = <button onClick={this.props.callback}>{"<< "}BACK</button>;
 				contents = 
 					<div>
 						<h1>Game created!</h1>
@@ -50,15 +44,15 @@ UI.Screen = React.createClass({
 					</div>;		
 				break;
 			case "game":
-				top = <button onClick={this.state.options.callback}>{"<< "}BACK</button>;
-				var data = this.state.options.data;
+				top = <button onClick={this.props.callback}>{"<< "}BACK</button>;
+				var data = this.props.data;
 				var myID = data.myID;
 				var myPlayerID = data.players.indexOf(data.myID);
 				var opponentPlayerID = (myPlayerID + 1) % 2;
 				var opponentID = data.players[opponentPlayerID];
 				
 				var blocked = false;
-				if (this.state.options.blocked || data.winner!=-1) {
+				if (this.props.blocked || data.winner!=-1) {
 					blocked = true;
 				}				
 				contents = 
