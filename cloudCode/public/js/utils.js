@@ -19,17 +19,6 @@ Util.getCanvasGameURL = function() {
 	return Config.APP_URI;
 }
 
-
-// my fb id 100000878348460 
-Util.facebookLogin = function(callback) {
-	FB.init({
-		appId      : '275850555903618',
-		status     : true,
-		xfbml      : true
-	});
-	FB.login(function(data){callback(data)}, {scope: ''});
-}
-
 Util.decodePubNub = function (m) {
 	var data = unescape(m);
 	data = data.replace(new RegExp("'", 'g'), '"');	

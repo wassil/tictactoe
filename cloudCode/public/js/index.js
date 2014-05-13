@@ -14,14 +14,7 @@ function init() {
 		xfbml      : true,
 		authResponse: Util.parseFBObject(Util.getSearchParameters().fb_object)
     });
-	
-	FB.init({
-		appId      : Config.APP_ID,
-		status     : true,
-		xfbml      : true
-    });
-	
-	
+
 	screen = UI.Screen({});
 	React.renderComponent(screen, document.getElementById('main'));
 	conn = new Connector();
