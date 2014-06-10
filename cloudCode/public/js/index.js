@@ -44,9 +44,9 @@ function gotoCreate() {
 	screen.gotoState("create", {callback:onStart, friendsOnline:false});
 
 	FB.Event.subscribe(
-		'canvas.presenceUpdated',
+		'canvas.friendsOnlineUpdated',
 		function(data) {
-			console.log("canvas.presenceUpdated");
+			console.log("canvas.friendsOnlineUpdated");
 			console.log(data);
 			screen.setProps({friendsOnline:data});
 		}
