@@ -101,17 +101,17 @@ var Game = Parse.Object.extend("Game", {
 		this.set("winner", w);
 	},
 	
-	getInviteID: function() {
-		return this.get("invite_id");
+	getRequestID: function() {
+		return this.get("request_id");
 	}
 
 	
 }, {
-	create: function(inviteID, creatorID) {
+	create: function(requestID, creatorID) {
 		var game = new Game();
 		game.get("full", false);
 		game.set("turn", 0);
-		game.set("invite_id", inviteID);
+		game.set("request_id", requestID);
 		game.set("creator", creatorID);
 		game.set("joiner","");
 		game.set("winner",-1);

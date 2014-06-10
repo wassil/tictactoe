@@ -19,16 +19,17 @@ function init() {
 	React.renderComponent(screen, document.getElementById('main'));
 	conn = new Connector();
 	conn.connect(Util.getSearchParameters().id, Util.getSearchParameters().token, onConnected, function(e){console.log(e)});
+	console.log('access token: ' + Util.getSearchParameters().token);
 }
 
 function onConnected() {
 	console.log("connected!");
-	
-	if (Util.getSearchParameters().invite_id){
+	if (Util.getSearchParameters().request_id){
 		conn.setMessageCallback(onInitMessage);
+		console.log("calling join");
 		conn.call(
 			"join", 
-			{invite_id:Util.getSearchParameters().invite_id}, 
+			{request_id:Util.getSearchParameters().request_id}, 
 			function(data){}, 
 			function(error){
 				console.log("cannot join: "+error.message);
@@ -38,11 +39,6 @@ function onConnected() {
 	} else {
 		gotoCreate();
 	}
-}
-
-function gotoCreate() {
-	screen.gotoState("create", {callback:onStart, friendsOnline:false});
-
 	FB.Event.subscribe(
 		'canvas.friendsOnlineUpdated',
 		function(data) {
@@ -51,40 +47,44 @@ function gotoCreate() {
 			screen.setProps({friendsOnline:data});
 		}
 	);
-
-	FB.Canvas.areFriendsOnline(
-		function (result) {
-			console.log("getOnlineFriendsCount");
-			console.log(result);
-			screen.setProps({friendsOnline:result});
+	FB.Event.subscribe(
+		'canvas.syncRequestUpdated',
+		function(data) {
+			console.log("canvas.syncRequestUpdated");
+			console.log(data);
 		}
 	);
+	
+}
 
+function gotoCreate() {
+	screen.gotoState("create", {callback:onStart, friendsOnline:false});
 }
 
 function onStart() {
 	FB.ui(
 		{
-			method: 'sync_app_invite',
-			timeout: 120,
-			display: 'dialog'
+			method: 'sync_request',
+			timeout: 30
 		},
-		onInviteSent
+		onRequestSent
 	);
 	conn.setMessageCallback(onInitMessage);
 }
 
-function onInviteSent(data) {
-	if (!data.invite_id) {
+function onRequestSent(data) {
+	console.log('Request sent.');
+	console.log(data);
+	if (!data || !data.request_id) {
 		return;
 	}
 	conn.call(
 		"start", 
 		{
-			invite_id:String(data.invite_id)
+			request_id:String(data.request_id)
 		}, 
 		function(data){
-			var link = Util.getCanvasGameURL()+"?invite=" + data.id;
+			var link = Util.getCanvasGameURL()+"?request=" + data.id;
 			//TODO timeout isn't used
 			screen.gotoState("wait", {timeout:120, callback:gotoCreate});
 		}, 

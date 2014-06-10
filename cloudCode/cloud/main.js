@@ -15,11 +15,11 @@ Parse.Cloud.define("start", function(request, response) {
 		response.error("token doesn't match");
 		return;
 	}
-	if (!request.params.invite_id){
-		response.error("you have to provide invite_id");
+	if (!request.params.request_id){
+		response.error("you have to provide request_id");
 		return;
 	}
-	var game = require("cloud/game.js").Game.create(request.params.invite_id, request.params.id);
+	var game = require("cloud/game.js").Game.create(request.params.request_id, request.params.id);
 	game.save(null, {
 		success: function(game) {
 			response.success({id:game.id});
@@ -36,18 +36,18 @@ Parse.Cloud.define("join", function(request, response) {
 		response.error("token doesn't match");
 		return;
 	}
-	if (!request.params.invite_id){
-		response.error("you have to provide invite id");	
+	if (!request.params.request_id){
+		response.error("you have to provide request id");
 		return;
 	}
 	var query = new Parse.Query(require("cloud/game.js").Game);
 	query.include("board");
-	console.log("looking for: "+request.params.invite_id);
-	query.equalTo("invite_id", request.params.invite_id);
+	console.log("looking for: "+request.params.request_id);
+	query.equalTo("request_id", request.params.request_id);
 	query.first({
 		success: function(game) {
 			if (!game.canJoin()){
-				response.error("cannot join game with invite id " + request.params.invite_id);
+				response.error("cannot join game with request id " + request.params.request_id);
 				return;
 			}
 			game.join(request.params.id);
@@ -60,7 +60,7 @@ Parse.Cloud.define("join", function(request, response) {
 			);
 		},
 		error: function(game, error) {
-			response.error("error loading game with invite id " + request.params.invite);
+			response.error("error loading game with request id " + request.params.request);
 		}
 	});
 });
@@ -80,7 +80,7 @@ Parse.Cloud.define("turn", function(request, response) {
 		success: function(game) {
 			var board = game.getBoard();
 			if (game.getPlayers().indexOf(request.params.id) != game.getWhoseTurn()){
-				response.error("not your turn in game id " + request.params.invite);
+				response.error("not your turn in game id " + request.params.request);
 				return;
 			}
 			if (board.getSquare(request.params.i,request.params.j)!=-1){
@@ -104,7 +104,7 @@ Parse.Cloud.define("turn", function(request, response) {
 			});			
 		},
 		error: function(game, error) {
-			response.error("error loading game with invite id " + request.params.invite);
+			response.error("error loading game with request id " + request.params.request);
 		}
 	});
 });

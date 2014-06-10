@@ -9,8 +9,8 @@ UI.Screen = React.createClass({
 	},
 
 	gotoState: function(state, props) {
-		this.setState({state:state});
 		this.replaceProps(props);
+		this.setState({state:state});
 	},
 
 	render: function() {
@@ -27,11 +27,14 @@ UI.Screen = React.createClass({
 				} else {
 					onlineFriends = <h3>None of your friends who play this are online</h3>;
 				}
+				var callback = function(data) {};
 				contents = 
 					<div>
 						<h1>Create new game!</h1>
 						{onlineFriends}
 						<button onClick={this.props.callback}>CREATE</button>
+						<button onClick={function () {FB.Event.subscribe('canvas.friendsOnlineUpdated', callback);}}>subscribe</button>
+						<button onClick={function () {FB.Event.unsubscribe('canvas.friendsOnlineUpdated', callback);}}>unsubscribe</button>
 					</div>;	
 				break;
 			case "wait":
@@ -64,10 +67,13 @@ UI.Screen = React.createClass({
 				break;
 			
 		}
+		var debug = 
+			<DebugData />;
 		return (
 		<div>
 			{top}
 			{contents}
+			{debug}
 		</div>
 		);
 	}
@@ -172,3 +178,14 @@ var Square = React.createClass({
 		);
 	}
 });
+
+var DebugData = React.createClass({
+	render: function() {
+		var jssdkURL = document.getElementById("facebook-jssdk").src;
+		var sdkLoc = "JS SDK location: " + jssdkURL.split('.')[1] + '.' + jssdkURL.split('.')[2];
+		return (
+			<div className="debug">{sdkLoc}</div>
+		);
+	}
+});
+
