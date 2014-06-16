@@ -9,3 +9,12 @@ Config.PUBNUB_SUBSCRIBE_KEY = "sub-c-bdbb77ee-8e2f-11e3-abcc-02ee2ddab7fe";
 Config.PARSE_APPLICATION_ID = "b9JzrHEkEQ4Gf1Q95vPzJR4nwPkejKyZ7fZEqTqA";
 Config.JAVASCRIPT_KEY = "mDou2tcnM5zWlYJa3xBdwi3CxYLbKjb7pMyAg8Zc";
 
+Config.REQUEST_TIMEOUT = 120;
+
+Config.RequestStates = {
+	PENDING: "PENDING",
+	ACCEPTED: "ACCEPTED",
+	REJECTED: "REJECTED",
+	EXPIRED: "EXPIRED",
+	CANCELED: "CANCELED"
+}

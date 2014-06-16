@@ -1,13 +1,13 @@
 var conn;
 var screen;
 var gameID;
+var requestID;
 
 function init() {
 	if (!Util.getSearchParameters().id || !Util.getSearchParameters().token) {
 		console.log("hack the planet!");
 		return;
 	}
-	console.log(Util.parseFBObject(Util.getSearchParameters().fb_object));
 	FB.init({
 		appId      : Config.APP_ID,
 		status     : true,
@@ -19,14 +19,11 @@ function init() {
 	React.renderComponent(screen, document.getElementById('main'));
 	conn = new Connector();
 	conn.connect(Util.getSearchParameters().id, Util.getSearchParameters().token, onConnected, function(e){console.log(e)});
-	console.log('access token: ' + Util.getSearchParameters().token);
 }
 
 function onConnected() {
-	console.log("connected!");
 	if (Util.getSearchParameters().request_id){
 		conn.setMessageCallback(onInitMessage);
-		console.log("calling join");
 		conn.call(
 			"join", 
 			{request_id:Util.getSearchParameters().request_id}, 
@@ -42,8 +39,6 @@ function onConnected() {
 	FB.Event.subscribe(
 		'canvas.friendsOnlineUpdated',
 		function(data) {
-			console.log("canvas.friendsOnlineUpdated");
-			console.log(data);
 			screen.setProps({friendsOnline:data});
 		}
 	);
@@ -52,6 +47,9 @@ function onConnected() {
 		function(data) {
 			console.log("canvas.syncRequestUpdated");
 			console.log(data);
+			if (requestID == data.id) {
+				screen.setProps({syncRequestStatus:data.status});
+			}
 		}
 	);
 	
@@ -65,7 +63,7 @@ function onStart() {
 	FB.ui(
 		{
 			method: 'sync_request',
-			timeout: 30
+			timeout: Config.REQUEST_TIMEOUT
 		},
 		onRequestSent
 	);
@@ -73,23 +71,42 @@ function onStart() {
 }
 
 function onRequestSent(data) {
-	console.log('Request sent.');
-	console.log(data);
 	if (!data || !data.request_id) {
 		return;
 	}
+	requestID = data.request_id;
 	conn.call(
 		"start", 
 		{
 			request_id:String(data.request_id)
 		}, 
 		function(data){
-			var link = Util.getCanvasGameURL()+"?request=" + data.id;
-			//TODO timeout isn't used
-			screen.gotoState("wait", {timeout:120, callback:gotoCreate});
+			var link = Util.getCanvasGameURL() + "?request=" + data.id;
+			screen.gotoState(
+				"wait", 
+				{
+					syncRequestStatus: Config.RequestStates.PENDING, 
+					timeout: Config.REQUEST_TIMEOUT, 
+					callback: cancelRequest
+				}
+			);
 		}, 
 		function(error){
-			console.log("cannot start: "+error.message);
+			console.log("cannot start: " + error.message);
+		}
+	);
+}
+
+function cancelRequest() {
+	FB.api(
+		'/'+requestID,
+		'post',
+		{status: Config.RequestStates.CANCELED},
+		function (response) {
+		  if (response && !response.error) {
+			console.log(response);
+			gotoCreate();
+		  }
 		}
 	);
 }
@@ -123,5 +140,3 @@ function onPlayerMove(i,j) {
 		function(){}
 	);
 }
-
-

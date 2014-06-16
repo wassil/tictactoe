@@ -33,17 +33,34 @@ UI.Screen = React.createClass({
 						<h1>Create new game!</h1>
 						{onlineFriends}
 						<button onClick={this.props.callback}>CREATE</button>
-						<button onClick={function () {FB.Event.subscribe('canvas.friendsOnlineUpdated', callback);}}>subscribe</button>
-						<button onClick={function () {FB.Event.unsubscribe('canvas.friendsOnlineUpdated', callback);}}>unsubscribe</button>
 					</div>;	
 				break;
 			case "wait":
 				top = <button onClick={this.props.callback}>{"<< "}BACK</button>;
+				var status = "";
+				switch (this.props.syncRequestStatus) {
+					case Config.RequestStates.PENDING:
+						status = 
+							<div>
+								<i>Please wait for your friend</i>
+								<Timer timeout={this.props.timeout} />
+							</div>;
+						break;
+					case Config.RequestStates.ACCEPTED:
+						status = <div>Request was accepted.</div>;
+						break;
+					case Config.RequestStates.REJECTED:
+						status = <div>Request was rejected.</div>;
+						break;
+					case Config.RequestStates.EXPIRED:
+						status = <div>Request has expired.</div>;
+						break;					
+				}
 				contents = 
 					<div>
 						<h1>Game created!</h1>
-						<i>Please wait for your friend</i>
 						<br/>
+						{status}
 					</div>;		
 				break;
 			case "game":
@@ -122,6 +139,24 @@ var PlayerPanel = React.createClass({
 	}
 });
 
+var Timer = React.createClass({
+	componentWillMount: function () {
+		this.interval = setInterval(function(){this.setState({time: Math.max(0, this.state.time - 1)});}.bind(this), 1000);
+		this.setState({time: this.props.timeout});
+	},
+
+	componentWillUnmount: function () {
+		clearInterval(this.interval);
+	},
+
+	render: function() {
+		return (
+			<div>
+				{this.state.time}
+			</div>
+		);
+	}
+});
 
 var Board = React.createClass({
 	render: function() {
